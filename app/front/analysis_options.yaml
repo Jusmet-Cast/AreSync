@@ -1,0 +1,30 @@
+# Las convenciones no se sostienen con disciplina, se sostienen con tooling.
+# Siendo un solo desarrollador, esto es lo que te protege de vos mismo dentro
+# de seis meses.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    # Un warning que se puede ignorar termina ignorandose siempre.
+    missing_required_param: error
+    missing_return: error
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+
+linter:
+  rules:
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    - avoid_print
+    - prefer_const_constructors
+    - prefer_final_locals
+    - prefer_single_quotes
+    - require_trailing_commas
+    - sort_pub_dependencies
+    - unawaited_futures
+    - use_super_parameters
