@@ -1,3 +1,4 @@
+using FitCodex.Domain.Energy;
 using FitCodex.Domain.Profiles;
 
 namespace FitCodex.Domain.Targets;
@@ -72,6 +73,14 @@ public sealed record TargetSet
     public required decimal Confidence { get; init; }
 
     public required BodyCompositionMethod BaselineMethod { get; init; }
+
+    /// <summary>
+    /// Si el gasto que sostiene estos targets salio de una tabla o de la
+    /// evidencia real del usuario. Cambia como se le presenta el numero:
+    /// "estimado segun tu perfil" no es lo mismo que "medido en tus ultimas
+    /// cuatro semanas".
+    /// </summary>
+    public TdeeSource TdeeSource { get; init; } = TdeeSource.Formula;
 
     public IReadOnlyList<TargetConstraint> Constraints { get; init; } = [];
 

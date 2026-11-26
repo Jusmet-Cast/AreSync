@@ -38,6 +38,48 @@ de MedLog.
 
 ---
 
+## 2a. Gasto energético total (TDEE)
+
+Hay dos caminos, y el sistema prefiere el segundo apenas puede:
+
+1. **Fórmula**: basal × multiplicador de actividad. Es la muleta inicial.
+2. **Observado**: derivado de la tendencia real de peso contra la ingesta
+   registrada. **[GENERALIZADO]**
+
+El cálculo observado es una identidad, no un modelo: la energía que entra y no
+se almacena, se gastó.
+
+```
+TDEE = ingesta media − (cambio de tendencia en kg × 7700 / días)
+```
+
+**Salvaguardas, porque esta cuenta se rompe fácil:**
+
+| Situación | Qué hace el sistema |
+| --- | --- |
+| Menos de 14 días | Usa la fórmula. El ruido de agua y glucógeno de una semana puede inventar o borrar un déficit entero |
+| 14–28 días | Mezcla fórmula y observación, soltándose de la tabla a medida que acumula evidencia |
+| Más de 28 días | Confía enteramente en la observación |
+| Menos de 70% de días con comida registrada | Marca `SparseIntakeLogging` y baja la confianza |
+| Peso muy ruidoso (>1.5% de desvío medio) | Marca `HighWeightVariance` y descuenta a la mitad |
+| TDEE calculado < basal | Marca `ImplausiblyLow`, **no lo usa**, y pide revisar el registro |
+
+> El último caso es el más importante. Alguien que registra 1.200 kcal y no
+> baja de peso **no tiene el metabolismo roto**: tiene comida sin registrar.
+> Si el sistema se creyera ese número, prescribiría una dieta de hambre sobre
+> un error de registro. Por eso lo reporta en vez de obedecerlo.
+
+El peso se suaviza con media móvil exponencial (inercia ≈ 1 semana) antes de
+leer ninguna tendencia: comparar dos pesajes sueltos es leer ruido y llamarlo
+progreso.
+
+**Pregunta para el profesional:** los 7.700 kcal/kg asumen tejido graso. El
+tejido que se pierde en déficit es mezcla de grasa, músculo y glucógeno con su
+agua, y esa mezcla cambia según el contexto. ¿Vale la aproximación para
+ventanas de 4+ semanas, o conviene ajustar el factor según composición?
+
+---
+
 ## 2. Metabolismo basal
 
 Orden de resolución, de mejor a peor:
@@ -191,9 +233,6 @@ composición de hace tres meses describe a una persona que ya no existe.
 
 ## Lo que este motor todavía NO hace
 
-- **TDEE adaptativo.** Hoy el gasto sale de multiplicadores de actividad.
-  Lo correcto es derivarlo de la tendencia real de peso vs ingesta registrada,
-  como hace MacroFactor. Es la mejora de mayor impacto pendiente.
 - **Periodización de carbos** por día de entreno vs descanso.
 - **Ajuste por carga de entrenamiento** del día (NUTRISYNC Paso 6: Load > 130 →
   TDEE +150–200 kcal).

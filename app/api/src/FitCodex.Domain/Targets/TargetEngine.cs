@@ -1,3 +1,4 @@
+using FitCodex.Domain.Energy;
 using FitCodex.Domain.Profiles;
 
 namespace FitCodex.Domain.Targets;
@@ -57,7 +58,20 @@ public static class TargetEngine
     /// </summary>
     private const decimal MinimumIntakeAsBmrMultiple = 1.0m;
 
-    public static TargetSet Derive(BodyComposition baseline, ObjectiveRequest request, DateOnly today)
+    public static TargetSet Derive(BodyComposition baseline, ObjectiveRequest request, DateOnly today) =>
+        Derive(baseline, request, today, observedTdee: null);
+
+    /// <summary>
+    /// <paramref name="observedTdee"/> es el gasto derivado de la evidencia
+    /// real del usuario (<see cref="Energy.AdaptiveTdee"/>). Cuando existe y
+    /// es confiable, reemplaza al multiplicador de actividad: la tendencia de
+    /// su propio peso contra lo que realmente comio le gana a cualquier tabla.
+    /// </summary>
+    public static TargetSet Derive(
+        BodyComposition baseline,
+        ObjectiveRequest request,
+        DateOnly today,
+        TdeeEstimate? observedTdee)
     {
         var constraints = new List<TargetConstraint>();
 
@@ -66,8 +80,12 @@ public static class TargetEngine
             constraints.Add(TargetConstraint.UnmeasuredBaseline);
         }
 
-        var maintenance = Math.Round(
+        var formulaMaintenance = Math.Round(
             baseline.BasalMetabolicRateKcal * request.ActivityLevel.Multiplier(), 0);
+
+        var maintenance = observedTdee is { IsTrustworthy: true }
+            ? observedTdee.Kcal
+            : formulaMaintenance;
 
         var offset = EnergyOffset(baseline, request, maintenance, constraints);
         var targetKcal = maintenance + offset;
@@ -110,7 +128,18 @@ public static class TargetEngine
             DailyStepGoal = StepGoal(request.ActivityLevel, request.Objective),
             SleepScoreGoal = 80,
             ExpectedWeeklyWeightChangeKg = weeklyChange,
-            Confidence = baseline.Method.Confidence(),
+
+            // La confianza del target no puede superar la de su eslabon mas
+            // debil: una composicion medida por DXA no salva un gasto
+            // adivinado, ni al reves.
+            Confidence = observedTdee is { IsTrustworthy: true }
+                ? Math.Min(baseline.Method.Confidence(), observedTdee.Confidence)
+                : baseline.Method.Confidence(),
+
+            TdeeSource = observedTdee is { IsTrustworthy: true }
+                ? observedTdee.Source
+                : TdeeSource.Formula,
+
             BaselineMethod = baseline.Method,
             Constraints = constraints,
             RecalculateAfter = today.AddDays(28)
