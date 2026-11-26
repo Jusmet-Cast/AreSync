@@ -1,9 +1,14 @@
 # AreSync API (app/api)
 
-**Estado: sin código todavía.** Esto documenta el plan de capas para que
-`app/front` tenga contra qué puerto diseñar sus interfaces (`ArcRepository`,
-`AgentOrchestrator`, `MealVisionSource`, `TelemetrySource`) sin esperar a que
-el backend exista.
+**Estado: modelo de datos listo, sin código de aplicación todavía.**
+
+- `database/ERD.md` — el modelo de datos completo: por qué relacional, mapa de
+  schemas, aristas y qué se corrigió respecto del Notion real.
+- `database/schema/*.sql` — DDL de SQL Server, numerado por orden de ejecución.
+
+Este README documenta el plan de capas para que `app/front` tenga contra qué
+puerto diseñar sus interfaces (`ArcRepository`, `AgentOrchestrator`,
+`MealVisionSource`, `TelemetrySource`) sin esperar a que el backend exista.
 
 ## Por qué hace falta un backend y no alcanza con pegarle a Notion directo
 
@@ -44,7 +49,17 @@ para el usuario único que hoy los invoca por chat.
 
 ## Siguiente paso real
 
-Nada todavía — este README es la base para la próxima sesión que arranque el
-proyecto .NET (`dotnet new webapi`, capas de Clean Architecture). No se crea
-un `.csproj` vacío hoy para evitar un esqueleto que compile pero no diga
-nada: mejor un plan honesto que un placeholder que finge ser código.
+El modelo de datos ya está (`database/`). Falta arrancar el proyecto .NET
+(`dotnet new webapi`, capas de Clean Architecture) y mapear las entidades de
+`Domain` contra estas tablas. No se creó un `.csproj` vacío por adelantado
+para evitar un esqueleto que compile pero no diga nada.
+
+**El DDL no se ejecutó contra ninguna base todavía** — está escrito, no
+verificado contra un motor real.
+
+## Fuera de alcance por ahora
+
+Mensajería profesional↔paciente. Está declarada como intención (ver la página
+del proyecto en DevCodex) pero no se modeló: implica hilos, adjuntos,
+posiblemente video, y un alcance regulatorio de datos de salud que todavía no
+se evaluó. Modelarla antes de esa evaluación sería adivinar.
