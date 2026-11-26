@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FitCodex.Api/FitCodex.Api.csproj" />
+    <Project Path="src/FitCodex.Application/FitCodex.Application.csproj" />
+    <Project Path="src/FitCodex.Domain/FitCodex.Domain.csproj" />
+    <Project Path="src/FitCodex.Infrastructure/FitCodex.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FitCodex.Domain.Tests/FitCodex.Domain.Tests.csproj" />
+  </Folder>
+</Solution>

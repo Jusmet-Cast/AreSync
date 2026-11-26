@@ -1,0 +1,10 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+
+# Secretos: la cadena de conexion va por user-secrets o variable de entorno,
+# nunca versionada
+appsettings.*.local.json
+*.pfx
